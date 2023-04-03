@@ -76,7 +76,7 @@ public class CarServer : MonoBehaviour
     public LanguageHandler languageHandler;
 
     // ZMQ Variables 
-    bool useZMQ = true;
+    bool useZMQ = false;
 
     private void Start()
     {
