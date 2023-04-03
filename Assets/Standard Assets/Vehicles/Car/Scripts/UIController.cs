@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using ArabicSupport;
 //Changelog
 /*
-Veriosn 1.0.8
+Version 1.0.8
 1.Added Language handler
 2.Multilingual Support
 */
@@ -42,12 +42,12 @@ public class UIController : MonoBehaviour
 	public LanguageHandler languageHandler;
 
 	//Version Settings
-	// string versionTextStr = "Fira Autonomous Cars : Tele-Operation Simulator Ver ";
+	// string versionTextStr = "FIRA Autonomous Cars : Tele-Operation Simulator Ver ";
 	//Last change : Jan 25 -> Robocup edition, Feb 7 -> Camera Calibration + Traffic System
 	bool isFinalVersion = true; 
 	bool isRealVersion = true;
-	string version = "2.0.1";
-	string finalVersion = "2.0.1";
+	string version = "2.2.1";
+	string finalVersion = "2.2.1";
 	string versionTextStr = "";
 	string versionResult;
 	string githubURL = "https://github.com/AvisEngine/AVIS-Engine-Python-API";
@@ -156,7 +156,7 @@ public class UIController : MonoBehaviour
 			btn3.GetComponentInChildren<Text>().text = ArabicFixer.Fix(languageHandler.dict["UrbanTrack1"], false, false);
 			btn4.GetComponentInChildren<Text>().text = ArabicFixer.Fix(languageHandler.dict["UrbanTrack2"], false, false);
 			headerText.GetComponentInChildren<Text>().text = ArabicFixer.Fix(languageHandler.dict["ChooseTrack"], false, false);
-			// calibButton.GetComponentInChildren<Text>().text = ArabicFixer.Fix(languageHandler.dict["CameraCalibration"], false, false);
+			calibButton.GetComponentInChildren<Text>().text = ArabicFixer.Fix(languageHandler.dict["CameraCalibration"], false, false);
 			terms.GetComponentInChildren<Text>().text = ArabicFixer.Fix(languageHandler.dict["terms"], false, false);
 			aboutSimBtn.GetComponentInChildren<Text>().text = ArabicFixer.Fix(languageHandler.dict["aboutThis"], false, false);
 			exitButton.GetComponentInChildren<Text>().text = ArabicFixer.Fix(languageHandler.dict["Exit"], false, false);
@@ -169,7 +169,7 @@ public class UIController : MonoBehaviour
 			terms.GetComponentInChildren<Text>().text = languageHandler.dict["terms"];
 			aboutSimBtn.GetComponentInChildren<Text>().text = languageHandler.dict["aboutThis"];
 			headerText.GetComponentInChildren<Text>().text = languageHandler.dict["ChooseTrack"];
-			// calibButton.GetComponentInChildren<Text>().text = languageHandler.dict["CameraCalibration"];
+			calibButton.GetComponentInChildren<Text>().text = languageHandler.dict["CameraCalibration"];
 			exitButton.GetComponentInChildren<Text>().text = languageHandler.dict["Exit"];
 			aboutHeaderText.GetComponentInChildren<Text>().text = languageHandler.dict["About"];
 		}
