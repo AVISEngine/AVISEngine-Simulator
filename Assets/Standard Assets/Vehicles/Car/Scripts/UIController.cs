@@ -12,7 +12,7 @@ Version 1.0.8
 */
 public class UIController : MonoBehaviour
 {
-	//UI Elements
+	// UI Elements
 	public Button Race1;
 	public Button Race2;
 	public Button Urban1;
@@ -38,14 +38,14 @@ public class UIController : MonoBehaviour
 	Button aboutSimBtn;
 	Button back;
 	Canvas canvasAbout;
-	//Classes
+	// Classes
 	public LanguageHandler languageHandler;
 
-	//Version Settings
+	// Version Settings
 	// string versionTextStr = "FIRA Autonomous Cars : Tele-Operation Simulator Ver ";
-	//Last change : Jan 25 -> Robocup edition, Feb 7 -> Camera Calibration + Traffic System
-	bool isFinalVersion = true; 
-	bool isRealVersion = true;
+	// Last change : Jan 25 -> Robocup edition, Feb 7 -> Camera Calibration + Traffic System
+	bool isFinalVersion = false; 
+	bool isRealVersion = false;
 	string version = "2.2.1";
 	string finalVersion = "2.2.1";
 	string versionTextStr = "";
@@ -59,7 +59,7 @@ public class UIController : MonoBehaviour
 
 	void Start()
 	{	
-		//Buttons
+		// Buttons
 		btn1 = Race1.GetComponent<Button>();
 		btn2 = Race2.GetComponent<Button>();
 		btn3 = Urban1.GetComponent<Button>();
@@ -92,7 +92,7 @@ public class UIController : MonoBehaviour
 		
 
 
-		//Texts
+		// Texts
 		// headerText = GameObject.Find("Canvas/Scroll View/Viewport/Content/Panel/HeaderTxt").GetComponent<Text>();
 		// versionText = GameObject.Find("Canvas/Text").GetComponent<Text>();
 		
