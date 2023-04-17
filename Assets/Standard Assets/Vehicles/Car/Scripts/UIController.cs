@@ -15,8 +15,10 @@ public class UIController : MonoBehaviour
 	// UI Elements
 	public Button Race1;
 	public Button Race2;
+	public Button Race3;
 	public Button Urban1;
 	public Button Urban2;
+	public Button Urban3;
 	public Button Exit;
 	public Button Github;
 	public Button Terms;
@@ -31,6 +33,8 @@ public class UIController : MonoBehaviour
 	Button btn2;
 	Button btn3;
 	Button btn4;
+	Button btn5;
+	Button btn6;
 	Button exitButton;
 	Button calibButton;
 	Button openGithub;
@@ -64,20 +68,29 @@ public class UIController : MonoBehaviour
 		btn2 = Race2.GetComponent<Button>();
 		btn3 = Urban1.GetComponent<Button>();
 		btn4 = Urban2.GetComponent<Button>();
+		btn5 = Urban3.GetComponent<Button>();
+		btn6 = Race3.GetComponent<Button>();
+
 		exitButton = Exit.GetComponent<Button>();
 		calibButton = Calib.GetComponent<Button>();
 		openGithub = Github.GetComponent<Button>();
 		aboutSimBtn = AboutSim.GetComponent<Button>();
+
 		terms = Terms.GetComponent<Button>();
 		back = backButton.GetComponent<Button>();
 		canvasAbout = aboutCanvas.GetComponent<Canvas>();
+
 		Hide(canvasAbout);
+
 		//Buttons Events
 		btn1.onClick.AddListener(Race1Event);
 		btn2.onClick.AddListener(Race2Event);
 		btn3.onClick.AddListener(Urban1Event);
 		btn3.Select();
 		btn4.onClick.AddListener(Urban2Event);
+		btn5.onClick.AddListener(Urban3Event);
+		btn6.onClick.AddListener(Race3Event);
+
 		if(isRealVersion){
 			btn1.gameObject.SetActive(false);
 			btn2.gameObject.SetActive(false);
@@ -280,6 +293,17 @@ public class UIController : MonoBehaviour
 			}
 		}
 	}
+	
+	void Urban3Event()
+	{
+		SceneManager.LoadScene("Urban3");
+	}
+
+	void Race3Event()
+	{
+		SceneManager.LoadScene("Race3");
+	}
+
 	void Hide(Canvas canvas)
     {
         canvas.enabled = false;
