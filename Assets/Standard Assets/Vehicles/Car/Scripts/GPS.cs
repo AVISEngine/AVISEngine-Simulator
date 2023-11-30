@@ -3,7 +3,7 @@
 public class GPS : MonoBehaviour
 {
     public float speed = 5f; // Movement speed of the object
-    public float updateInterval = 1f; // Update interval in seconds for generating new GPS coordinates
+    public float updateInterval = 0.5f; // Update interval in seconds for generating new GPS coordinates
 
     private float nextUpdate;
     private Vector3 lastPosition;

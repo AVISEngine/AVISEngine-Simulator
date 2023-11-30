@@ -48,8 +48,8 @@ public class UIController : MonoBehaviour
 	// Version Settings
 	// string versionTextStr = "FIRA Autonomous Cars : Tele-Operation Simulator Ver ";
 	// Last change : Jan 25 -> Robocup edition, Feb 7 -> Camera Calibration + Traffic System
-	bool isFinalVersion = true; 
-	bool isRealVersion = false;
+	bool isFinalVersion = false; 
+	bool isRealVersion = true;
 	bool isAlphaVersion = false;
 	string version = "1.2.7";
 	string finalVersion = "1.2.7";
@@ -290,7 +290,7 @@ public class UIController : MonoBehaviour
 	void Urban2Event()
 	{	
 		if(isRealVersion){
-			//SceneManager.LoadScene("RealUrban");
+			SceneManager.LoadScene("RealUrban");
 		}else{
 			if(isFinalVersion){
 				SceneManager.LoadScene("Urban3");
@@ -302,7 +302,7 @@ public class UIController : MonoBehaviour
 	
 	void Urban3Event()
 	{
-		SceneManager.LoadScene("Urban3");
+		SceneManager.LoadScene("FCG-VPP");
 	}
 
 	void Race3Event()
