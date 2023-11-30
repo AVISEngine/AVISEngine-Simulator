@@ -135,7 +135,7 @@ public class ImageSynthesis : MonoBehaviour
 
     public void OnCameraChange()
     {
-        int targetDisplay = 1;
+        int targetDisplay = 0;
         var mainCamera = GetComponent<Camera>();
         foreach (var pass in capturePasses)
         {

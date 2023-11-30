@@ -1,66 +1,78 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
 
 public class LIDAR : MonoBehaviour
 {
-    public int numHorizontalRays = 360;
-    public int numVerticalRays = 180;
-    public float maxDistance = 10f;
+    public LayerMask detectionLayer;
+    public int numberOfRaysVertical = 10;
+    public float maxDetectionRange = 10.0f;
+    public float verticalFOV = 30.0f;
+    public Material pointCloudMaterial;
 
-    private List<Vector3> pointCloud = new List<Vector3>();
+    private MeshFilter pointCloudMeshFilter;
+    private Mesh pointCloudMesh;
+
+    void Start()
+    {
+        InitializePointCloud();
+    }
 
     void Update()
     {
-        ClearLines();
-        SimulateLidar();
-        CreatePointCloud();
+        GenerateLidarPointCloud();
     }
 
-    void SimulateLidar()
+    void InitializePointCloud()
     {
-        for (int i = 0; i < numHorizontalRays; i++)
+        // Create a mesh for point cloud visualization
+        GameObject pointCloudObject = new GameObject("PointCloudObject");
+        pointCloudObject.transform.parent = transform;
+
+        pointCloudMeshFilter = pointCloudObject.AddComponent<MeshFilter>();
+        pointCloudMesh = new Mesh();
+        pointCloudMeshFilter.mesh = pointCloudMesh;
+
+        MeshRenderer meshRenderer = pointCloudObject.AddComponent<MeshRenderer>();
+        meshRenderer.material = pointCloudMaterial;
+    }
+
+    void GenerateLidarPointCloud()
+    {
+        Vector3[] vertices = new Vector3[numberOfRaysVertical];
+        int[] indices = new int[numberOfRaysVertical];
+
+        for (int i = 0; i < numberOfRaysVertical; i++)
         {
-            for (int j = 0; j < numVerticalRays; j++)
+            float verticalAngle = i * (verticalFOV / (numberOfRaysVertical - 1)) - (verticalFOV / 2);
+
+            // Convert local direction to world direction
+            Vector3 localDirection = Quaternion.Euler(verticalAngle, 0, 0) * Vector3.forward;
+            Vector3 worldDirection = transform.TransformDirection(localDirection);
+
+            RaycastHit hit;
+
+            if (Physics.Raycast(transform.position, worldDirection, out hit, maxDetectionRange, detectionLayer))
             {
-                float horizontalAngle = i * 360f / numHorizontalRays;
-                float verticalAngle = j * 180f / (numVerticalRays - 1) - 90f; // Distribute the vertical rays from -90 to 90 degrees
-
-                Vector3 direction = Quaternion.Euler(verticalAngle, horizontalAngle, 0) * transform.forward;
-
-                RaycastHit hit;
-
-                if (Physics.Raycast(transform.position, direction, out hit, maxDistance))
-                {
-                    Debug.DrawLine(transform.position, hit.point, Color.red);
-                    pointCloud.Add(hit.point);
-                }
-                else
-                {
-                    Vector3 endPoint = transform.position + direction * maxDistance;
-                    Debug.DrawLine(transform.position, endPoint, Color.green);
-                }
+                // Process the hit data and store it in the point cloud.
+                float distance = hit.distance;
+                Vector3 hitPoint = transform.position + worldDirection * distance;
+                vertices[i] = hitPoint;
             }
+            else
+            {
+                // If no hit, set the point to the max detection range.
+                vertices[i] = transform.position + worldDirection * maxDetectionRange;
+            }
+
+            indices[i] = i;
         }
-    }
 
-    void CreatePointCloud()
-    {
-        // Create a point cloud using a primitive Unity GameObject (e.g., empty GameObject or particle system)
-        GameObject pointCloudObject = new GameObject("PointCloud");
-        pointCloudObject.transform.position = Vector3.zero;
+        // Update the point cloud mesh
+        pointCloudMesh.Clear();
+        pointCloudMesh.vertices = vertices;
+        pointCloudMesh.SetIndices(indices, MeshTopology.Points, 0);
 
-        // Add points to the point cloud GameObject
-        foreach (Vector3 point in pointCloud)
-        {
-            GameObject pointObj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            pointObj.transform.position = point;
-            pointObj.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f); // Adjust the size of the points
-            pointObj.transform.SetParent(pointCloudObject.transform);
-        }
-    }
-
-    void ClearLines()
-    {
-        Debug.ClearDeveloperConsole();
+        // Optionally, you can recalculate normals and bounds for better rendering
+        pointCloudMesh.RecalculateNormals();
+        pointCloudMesh.RecalculateBounds();
     }
 }

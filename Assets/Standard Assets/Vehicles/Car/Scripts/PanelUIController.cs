@@ -13,7 +13,7 @@ public class PanelUIController : MonoBehaviour
     public GameObject Panelcanvas;
     public GameObject Obstacles;
     public GameObject MainCanvas;
-    public GameObject DirectionalLight;
+    // public GameObject DirectionalLight;
     
     private bool ismainPanel = true;
     Toggle obstacleToggle;
@@ -67,10 +67,10 @@ public class PanelUIController : MonoBehaviour
         rightSideToggle = GameObject.Find("UIPanel/Scroll View/Viewport/Content/Configuration/Toggles/OneWayToggle").GetComponentInChildren<Toggle>();
         
         // DayLightSlider
-        dayTimeSlider = GameObject.Find("UIPanel/Scroll View/Viewport/Content/dayTime/dayTimeSlider")
-            .GetComponentInChildren<Slider>();
+        // dayTimeSlider = GameObject.Find("UIPanel/Scroll View/Viewport/Content/dayTime/dayTimeSlider")
+        //     .GetComponentInChildren<Slider>();
         //DirectionalLight
-        worldLight = DirectionalLight.GetComponent<Light>();
+        // worldLight = DirectionalLight.GetComponent<Light>();
 
         //Defining Texts
         StatusLabel = GameObject.Find("UIPanel/Scroll View/Viewport/Content/Status Label").GetComponentInChildren<Text>();
@@ -86,9 +86,9 @@ public class PanelUIController : MonoBehaviour
         GameObject gameObject = new GameObject("LanguageHandler");
         languageHandler = gameObject.AddComponent<LanguageHandler>();
         
-        LightInitialTransform = new Vector3(worldLight.transform.localRotation.eulerAngles.x, worldLight.transform.localRotation.eulerAngles.y ,worldLight.transform.localRotation.eulerAngles.z);
-        LightInitialPosition = new Vector3(worldLight.transform.position.x,
-            worldLight.transform.position.y, worldLight.transform.position.z);
+        // LightInitialTransform = new Vector3(worldLight.transform.localRotation.eulerAngles.x, worldLight.transform.localRotation.eulerAngles.y ,worldLight.transform.localRotation.eulerAngles.z);
+        // LightInitialPosition = new Vector3(worldLight.transform.position.x,
+        //     worldLight.transform.position.y, worldLight.transform.position.z);
         
         languageHandler.m_dictionary();
         if(languageHandler.lang == "fa"){
@@ -132,7 +132,7 @@ public class PanelUIController : MonoBehaviour
         RightCheckpoints.SetActive(true);
         FullCheckpoints.SetActive(false);
 
-
+        
         //Defining Checkpoint GameObjects
         // RightCheckpoints = GameObject.Find("RightCheckPoints").GetComponent();
         // FullCheckpoints = GameObject.Find("FullCheckPoints").GetComponent();
@@ -158,7 +158,7 @@ public class PanelUIController : MonoBehaviour
         Quaternion lightTransform =  Quaternion.Euler(slider.value, LightInitialTransform.y ,LightInitialTransform.y);
         // print(lightTransform.ToString());
         //
-        worldLight.transform.SetPositionAndRotation(LightInitialPosition, lightTransform);
+        // worldLight.transform.SetPositionAndRotation(LightInitialPosition, lightTransform);
     }
 
     // Update is called once per frame
@@ -172,10 +172,10 @@ public class PanelUIController : MonoBehaviour
             
         });
         
-        dayTimeSlider.onValueChanged.AddListener(delegate {
-            dayTimeValueChanged(dayTimeSlider);
-            
-        });
+        // dayTimeSlider.onValueChanged.AddListener(delegate {
+        //     dayTimeValueChanged(dayTimeSlider);
+        //     
+        // });
     }
     void WayToggleValueChanged(Toggle change){
         if(change.isOn){
@@ -199,10 +199,11 @@ public class PanelUIController : MonoBehaviour
         //print(obstacleToggle.isOn);
     }
     void OpenPanelEvent()
-    {
+    {   
+        print("Hey") ;
         if (ismainPanel)
         {
-
+    
             //MainCanvas.SetActive(false);
             //Panelcanvas.SetActive(true);
             Hide(cgMain);
