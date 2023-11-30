@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -12,18 +13,23 @@ public class PanelUIController : MonoBehaviour
     public GameObject Panelcanvas;
     public GameObject Obstacles;
     public GameObject MainCanvas;
+    public GameObject DirectionalLight;
+    
     private bool ismainPanel = true;
     Toggle obstacleToggle;
     Toggle rightSideToggle;
+    Toggle headLightToggle;
     Canvas cgMain;
     Canvas cgPanel;
     Button reset;
     Button close;
     Button quit;
+    Light worldLight;
+    Slider dayTimeSlider;
     
     public GameObject RightCheckpoints;
     public GameObject FullCheckpoints;
-
+    
     LanguageHandler languageHandler;
     Text StatusLabel;
     Text SteeringHeader;
@@ -34,6 +40,8 @@ public class PanelUIController : MonoBehaviour
     Text LogsHeader;
     Text ConfigHeader;
 
+    Vector3 LightInitialTransform;
+    Vector3 LightInitialPosition;
     // Start is called before the first frame update
     void Start()
     {
@@ -54,11 +62,17 @@ public class PanelUIController : MonoBehaviour
         close = GameObject.Find("UIPanel/Close").GetComponentInChildren<Button>();
         quit = GameObject.Find("UIPanel/Levels").GetComponentInChildren<Button>();
 
-        //Defifing Toggles
+        //Defining Toggles
         obstacleToggle = GameObject.Find("UIPanel/Scroll View/Viewport/Content/Configuration/Toggles/ObstaclesToggle").GetComponentInChildren<Toggle>();
         rightSideToggle = GameObject.Find("UIPanel/Scroll View/Viewport/Content/Configuration/Toggles/OneWayToggle").GetComponentInChildren<Toggle>();
         
-        //Defifing Texts
+        // DayLightSlider
+        dayTimeSlider = GameObject.Find("UIPanel/Scroll View/Viewport/Content/dayTime/dayTimeSlider")
+            .GetComponentInChildren<Slider>();
+        //DirectionalLight
+        worldLight = DirectionalLight.GetComponent<Light>();
+
+        //Defining Texts
         StatusLabel = GameObject.Find("UIPanel/Scroll View/Viewport/Content/Status Label").GetComponentInChildren<Text>();
         SteeringHeader = GameObject.Find("UIPanel/Scroll View/Viewport/Content/SteeringHeader").GetComponentInChildren<Text>();
         SpeedHeader = GameObject.Find("UIPanel/Scroll View/Viewport/Content/SpeedHeader").GetComponentInChildren<Text>();
@@ -71,7 +85,11 @@ public class PanelUIController : MonoBehaviour
         //Language Handler
         GameObject gameObject = new GameObject("LanguageHandler");
         languageHandler = gameObject.AddComponent<LanguageHandler>();
-
+        
+        LightInitialTransform = new Vector3(worldLight.transform.localRotation.eulerAngles.x, worldLight.transform.localRotation.eulerAngles.y ,worldLight.transform.localRotation.eulerAngles.z);
+        LightInitialPosition = new Vector3(worldLight.transform.position.x,
+            worldLight.transform.position.y, worldLight.transform.position.z);
+        
         languageHandler.m_dictionary();
         if(languageHandler.lang == "fa"){
             btn1.GetComponentInChildren<Text>().text = ArabicFixer.Fix(languageHandler.dict["InfoPanel"], false, false);
@@ -134,6 +152,14 @@ public class PanelUIController : MonoBehaviour
         Hide(cgPanel);
         ismainPanel = true;
     }
+    void dayTimeValueChanged(Slider slider)
+    {
+    
+        Quaternion lightTransform =  Quaternion.Euler(slider.value, LightInitialTransform.y ,LightInitialTransform.y);
+        // print(lightTransform.ToString());
+        //
+        worldLight.transform.SetPositionAndRotation(LightInitialPosition, lightTransform);
+    }
 
     // Update is called once per frame
     void Update()
@@ -146,6 +172,10 @@ public class PanelUIController : MonoBehaviour
             
         });
         
+        dayTimeSlider.onValueChanged.AddListener(delegate {
+            dayTimeValueChanged(dayTimeSlider);
+            
+        });
     }
     void WayToggleValueChanged(Toggle change){
         if(change.isOn){

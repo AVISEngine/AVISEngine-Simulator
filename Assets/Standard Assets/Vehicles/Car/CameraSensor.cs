@@ -30,7 +30,7 @@ public class CameraSensor : MonoBehaviour
 	void Awake()
 	{
 		tex = new Texture2D(width, height, TextureFormat.RGB24, false);
-		ren = new RenderTexture(width, height, 8, RenderTextureFormat.ARGB4444);
+		ren = new RenderTexture(width, height, 8, RenderTextureFormat.ARGB32);
 		sensorCam.targetTexture = ren;
 	}
 
@@ -61,11 +61,11 @@ public class CameraSensor : MonoBehaviour
 			jsonString = File.ReadAllText(path);
 			JSONNode data = JSON.Parse(jsonString); 
 			
-			foreach(JSONNode con in data["Config"])
-			{
-				Debug.Log(con["CameraWidth"]);
-				Debug.Log(con["CameraHeight"]);
-			}
+			// foreach(JSONNode con in data["Config"])
+			// {
+			// 	Debug.Log(con["CameraWidth"]);
+			// 	Debug.Log(con["CameraHeight"]);
+			// }
 		}
 
 	}

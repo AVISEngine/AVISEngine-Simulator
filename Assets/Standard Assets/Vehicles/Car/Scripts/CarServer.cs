@@ -76,7 +76,7 @@ public class CarServer : MonoBehaviour
     public LanguageHandler languageHandler;
 
     // ZMQ Variables 
-    bool useZMQ = false;
+    bool useZMQ = true;
 
     private void Start()
     {
@@ -108,8 +108,8 @@ public class CarServer : MonoBehaviour
 
         // Finding Components need to get access
         cameraSens = GetComponent<CameraSensor>();
-        sensorsClass = GameObject.Find("Car Urban Tesla/SensorBox").GetComponent<Sensors>();
 
+        sensorsClass = GameObject.Find("Car Urban Tesla/SensorBox").GetComponent<Sensors>();
     }
 
     private void Update()

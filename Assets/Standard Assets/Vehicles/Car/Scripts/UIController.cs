@@ -48,11 +48,12 @@ public class UIController : MonoBehaviour
 	// Version Settings
 	// string versionTextStr = "FIRA Autonomous Cars : Tele-Operation Simulator Ver ";
 	// Last change : Jan 25 -> Robocup edition, Feb 7 -> Camera Calibration + Traffic System
-	bool isFinalVersion = false; 
+	bool isFinalVersion = true; 
 	bool isRealVersion = false;
-	string version = "2.2.1";
-	string finalVersion = "2.2.1";
-	string versionTextStr = "";
+	bool isAlphaVersion = false;
+	string version = "1.2.7";
+	string finalVersion = "1.2.7";
+	string versionTextStr = " pre-alpha";
 	string versionResult;
 	string githubURL = "https://github.com/AvisEngine/AVIS-Engine-Python-API";
 	string termsURL = "http://avisengine.com/225286-2/";
@@ -66,8 +67,8 @@ public class UIController : MonoBehaviour
 		// Buttons
 		btn1 = Race1.GetComponent<Button>();
 		btn2 = Race2.GetComponent<Button>();
-		btn3 = Urban1.GetComponent<Button>();
-		btn4 = Urban2.GetComponent<Button>();
+		btn3 = Urban2.GetComponent<Button>();
+		btn4 = Urban1.GetComponent<Button>();
 		btn5 = Urban3.GetComponent<Button>();
 		btn6 = Race3.GetComponent<Button>();
 
@@ -103,8 +104,13 @@ public class UIController : MonoBehaviour
 		terms.onClick.AddListener(termsEvent);
 		back.onClick.AddListener(aboutBackEvent);
 		
-
-
+		if(isAlphaVersion){
+			btn1.gameObject.SetActive(false);
+			btn2.gameObject.SetActive(false);
+			btn3.gameObject.SetActive(false);
+			btn5.gameObject.SetActive(false);
+			btn6.gameObject.SetActive(false);
+		}
 		// Texts
 		// headerText = GameObject.Find("Canvas/Scroll View/Viewport/Content/Panel/HeaderTxt").GetComponent<Text>();
 		// versionText = GameObject.Find("Canvas/Text").GetComponent<Text>();
@@ -253,7 +259,7 @@ public class UIController : MonoBehaviour
 	void Race2Event()
 	{	
 		if(isFinalVersion){
-			SceneManager.LoadScene("Race3");
+			SceneManager.LoadScene("Race2");
 		}else{
 			SceneManager.LoadScene("Race2");
 		}
