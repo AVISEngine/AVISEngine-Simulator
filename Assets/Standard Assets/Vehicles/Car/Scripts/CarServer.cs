@@ -22,8 +22,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using ArabicSupport;
 using System.IO.Compression;
-using NetMQ;
-using NetMQ.Sockets;
 
 public class CarServer : MonoBehaviour
 {
@@ -76,7 +74,7 @@ public class CarServer : MonoBehaviour
     public LanguageHandler languageHandler;
 
     // ZMQ Variables 
-    bool useZMQ = true;
+    bool useZMQ = false;
 
     private void Start()
     {
@@ -108,8 +106,8 @@ public class CarServer : MonoBehaviour
 
         // Finding Components need to get access
         cameraSens = GetComponent<CameraSensor>();
-
         sensorsClass = GameObject.Find("Car Urban Tesla/SensorBox").GetComponent<Sensors>();
+
     }
 
     private void Update()
@@ -300,13 +298,13 @@ public class CarServer : MonoBehaviour
         }
     }
 
-    public void Publish(string topic, string data){
-        var pubSocket = new PublisherSocket();
-        pubSocket.Options.SendHighWatermark = 1000;
-        pubSocket.Bind("tcp://*:25005");
-        print("Publisher socket binding...");
-        pubSocket.SendMoreFrame("/car/steering").SendFrame("/car/steering" + "20000");
-    }
+    // public void Publish(string topic, string data){
+    //     var pubSocket = new PublisherSocket();
+    //     pubSocket.Options.SendHighWatermark = 1000;
+    //     pubSocket.Bind("tcp://*:25005");
+    //     print("Publisher socket binding...");
+    //     pubSocket.SendMoreFrame("/car/steering").SendFrame("/car/steering" + "20000");
+    // }
 
     // All Topics
     public void topics(){
@@ -331,5 +329,4 @@ public class CarServer : MonoBehaviour
     }
 
 }
-
 

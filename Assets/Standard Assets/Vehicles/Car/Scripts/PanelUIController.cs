@@ -12,6 +12,9 @@ public class PanelUIController : MonoBehaviour
     public Button OpenPanel;
     public GameObject Panelcanvas;
     public GameObject Obstacles;
+    public GameObject HeadLights;
+    public GameObject CarContainer;
+
     public GameObject MainCanvas;
     // public GameObject DirectionalLight;
     
@@ -19,6 +22,7 @@ public class PanelUIController : MonoBehaviour
     Toggle obstacleToggle;
     Toggle rightSideToggle;
     Toggle headLightToggle;
+    Toggle trafficToggle;
     Canvas cgMain;
     Canvas cgPanel;
     Button reset;
@@ -65,6 +69,8 @@ public class PanelUIController : MonoBehaviour
         //Defining Toggles
         obstacleToggle = GameObject.Find("UIPanel/Scroll View/Viewport/Content/Configuration/Toggles/ObstaclesToggle").GetComponentInChildren<Toggle>();
         rightSideToggle = GameObject.Find("UIPanel/Scroll View/Viewport/Content/Configuration/Toggles/OneWayToggle").GetComponentInChildren<Toggle>();
+        headLightToggle = GameObject.Find("UIPanel/Scroll View/Viewport/Content/Configuration/Toggles/LightsToggle").GetComponentInChildren<Toggle>();
+        trafficToggle = GameObject.Find("UIPanel/Scroll View/Viewport/Content/Configuration/Toggles/TrafficToggle").GetComponentInChildren<Toggle>();
         
         // DayLightSlider
         // dayTimeSlider = GameObject.Find("UIPanel/Scroll View/Viewport/Content/dayTime/dayTimeSlider")
@@ -171,6 +177,15 @@ public class PanelUIController : MonoBehaviour
             ToggleValueChanged(obstacleToggle);
             
         });
+        headLightToggle.onValueChanged.AddListener(delegate {
+            LightValueChanged(headLightToggle);
+            
+        });
+        trafficToggle.onValueChanged.AddListener(delegate {
+            TrafficToggleChanged(trafficToggle);
+            
+        });
+
         
         // dayTimeSlider.onValueChanged.AddListener(delegate {
         //     dayTimeValueChanged(dayTimeSlider);
@@ -196,7 +211,32 @@ public class PanelUIController : MonoBehaviour
         {
             Obstacles.SetActive(false);
         }
-        //print(obstacleToggle.isOn);
+   
+    }
+    void LightValueChanged(Toggle change)
+    {
+        if (headLightToggle.isOn)
+        {
+            HeadLights.SetActive(true);
+        }
+        else
+        {
+            HeadLights.SetActive(false);
+        }
+      
+    }
+    
+    void TrafficToggleChanged(Toggle change)
+    {
+        if (change.isOn)
+        {
+            CarContainer.SetActive(true);
+        }
+        else
+        {
+            CarContainer.SetActive(false);
+        }
+      
     }
     void OpenPanelEvent()
     {   

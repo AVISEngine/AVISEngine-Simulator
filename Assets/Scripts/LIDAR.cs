@@ -1,78 +1,63 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
-public class LIDAR : MonoBehaviour
-{
-    public LayerMask detectionLayer;
-    public int numberOfRaysVertical = 10;
-    public float maxDetectionRange = 10.0f;
-    public float verticalFOV = 30.0f;
-    public Material pointCloudMaterial;
+public class LIDAR : MonoBehaviour {
 
-    private MeshFilter pointCloudMeshFilter;
-    private Mesh pointCloudMesh;
+    public float maxAngle = 10;
+    public float minAngle = -10;
+    public int numberOfLayers = 16;
+    public int numberOfIncrements = 360;
+    public float maxRange = 100f;
 
-    void Start()
-    {
-        InitializePointCloud();
+    float vertIncrement;
+    float azimutIncrAngle;
+
+    [HideInInspector]
+    public float[] distances;
+    public float[] azimuts;
+
+
+    // Use this for initialization
+    void Start () {
+        distances = new float[numberOfLayers* numberOfIncrements];
+        azimuts = new float[numberOfIncrements];
+        vertIncrement = (float)(maxAngle - minAngle) / (float)(numberOfLayers - 1);
+        azimutIncrAngle = (float)(360.0f / numberOfIncrements);
     }
 
-    void Update()
-    {
-        GenerateLidarPointCloud();
-    }
+// Update is called once per frame
+void FixedUpdate () {
+        Vector3 fwd = new Vector3(0, 0, 1);
+        Vector3 dir;
+        RaycastHit hit;
+        int indx = 0;
+        float angle;
 
-    void InitializePointCloud()
-    {
-        // Create a mesh for point cloud visualization
-        GameObject pointCloudObject = new GameObject("PointCloudObject");
-        pointCloudObject.transform.parent = transform;
-
-        pointCloudMeshFilter = pointCloudObject.AddComponent<MeshFilter>();
-        pointCloudMesh = new Mesh();
-        pointCloudMeshFilter.mesh = pointCloudMesh;
-
-        MeshRenderer meshRenderer = pointCloudObject.AddComponent<MeshRenderer>();
-        meshRenderer.material = pointCloudMaterial;
-    }
-
-    void GenerateLidarPointCloud()
-    {
-        Vector3[] vertices = new Vector3[numberOfRaysVertical];
-        int[] indices = new int[numberOfRaysVertical];
-
-        for (int i = 0; i < numberOfRaysVertical; i++)
+        //azimut angles
+        for (int incr = 0; incr < numberOfIncrements; incr++)
         {
-            float verticalAngle = i * (verticalFOV / (numberOfRaysVertical - 1)) - (verticalFOV / 2);
-
-            // Convert local direction to world direction
-            Vector3 localDirection = Quaternion.Euler(verticalAngle, 0, 0) * Vector3.forward;
-            Vector3 worldDirection = transform.TransformDirection(localDirection);
-
-            RaycastHit hit;
-
-            if (Physics.Raycast(transform.position, worldDirection, out hit, maxDetectionRange, detectionLayer))
+            for (int layer = 0; layer < numberOfLayers; layer++)
             {
-                // Process the hit data and store it in the point cloud.
-                float distance = hit.distance;
-                Vector3 hitPoint = transform.position + worldDirection * distance;
-                vertices[i] = hitPoint;
-            }
-            else
-            {
-                // If no hit, set the point to the max detection range.
-                vertices[i] = transform.position + worldDirection * maxDetectionRange;
-            }
+                //print("incr "+ incr +" layer "+layer+"\n");
+                indx = layer + incr * numberOfLayers;
+                angle = minAngle + (float)layer * vertIncrement;
+                azimuts[incr] = incr * azimutIncrAngle;
+                dir = transform.rotation * Quaternion.Euler(-angle, azimuts[incr], 0)*fwd;
+               // print("idx "+ indx +" angle " + angle + "  azimut " + azimut + " quats " + Quaternion.Euler(-angle, azimut, 0) + " dir " + dir+ " fwd " + fwd+"\n");
 
-            indices[i] = i;
+                if (Physics.Raycast(transform.position, dir, out hit, maxRange))
+                {
+                    Debug.DrawRay(transform.position +  new Vector3(0,0,0), dir *(float)hit.distance, Color.green);
+                    distances[indx] = (float)hit.distance;
+                    
+                }
+                else
+                {
+                    distances[indx] = 100.0f;
+                }
+            }
         }
 
-        // Update the point cloud mesh
-        pointCloudMesh.Clear();
-        pointCloudMesh.vertices = vertices;
-        pointCloudMesh.SetIndices(indices, MeshTopology.Points, 0);
-
-        // Optionally, you can recalculate normals and bounds for better rendering
-        pointCloudMesh.RecalculateNormals();
-        pointCloudMesh.RecalculateBounds();
     }
 }
