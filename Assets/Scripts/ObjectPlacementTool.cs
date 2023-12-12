@@ -13,6 +13,7 @@ public class ObjectPlacementTool : MonoBehaviour
     private Vector3 _rotation;
     private bool _isInPlacementMode;
     private Camera _gameCamera;
+    public Camera mainCamera;
     public GameObject leftSign;
     public GameObject rightSign;
     public GameObject stopSign;
@@ -104,8 +105,7 @@ public class ObjectPlacementTool : MonoBehaviour
         if (GUILayout.Button("Switch To AVIS Engine Scene Builder"))
         {
             _isInPlacementMode = true;
-            _gameCamera = GameObject.Find("Main Camera").GetComponentInChildren<Camera>();
-            _gameCamera.gameObject.SetActive(false);
+            mainCamera.gameObject.SetActive(false);
             _gameCamera = GameObject.Find("GizmoCamera").GetComponentInChildren<Camera>();
 
             SceneView.lastActiveSceneView.in2DMode = false;
@@ -240,7 +240,31 @@ public class ObjectPlacementTool : MonoBehaviour
 
                     foreach (TransformData transformData in transforms)
                     {
-                        GameObject objectToPlacePrefab = Resources.Load<GameObject>(transformData.type);
+                        // GameObject objectToPlacePrefab = Resources.Load<GameObject>(transformData.type);
+                        GameObject objectToPlacePrefab = null;
+
+                        // Determine which prefab to instantiate
+                        switch (transformData.type)
+                        {
+                            case "Left":
+                                objectToPlacePrefab = leftSign;
+                                break;
+                            case "Right":
+                                objectToPlacePrefab = rightSign;
+                                break;
+                            case "Stop":
+                                objectToPlacePrefab = stopSign;
+                                break;
+                            case "Straight":
+                                objectToPlacePrefab = straightSign;
+                                break;
+                            case "Barrier":
+                                objectToPlacePrefab = objectToPlace;
+                                break;
+                            default:
+                                Debug.LogError("Prefab name not recognized: " + transformData.type);
+                                break;
+                        }
                         if(objectToPlacePrefab != null)
                         {
                             GameObject newObject = Instantiate(objectToPlacePrefab, transformData.position, transformData.rotation);
@@ -261,7 +285,9 @@ public class ObjectPlacementTool : MonoBehaviour
             if (GUILayout.Button("Exit Edit Mode"))
             {
                 _isInPlacementMode = false;
-                _gameCamera.gameObject.SetActive(true);
+                mainCamera.gameObject.SetActive(true);
+                // _gameCamera.gameObject.SetActive(false);
+
             }
         }
     }
