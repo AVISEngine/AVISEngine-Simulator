@@ -180,10 +180,10 @@ public class ObjectPlacementTool : MonoBehaviour
                 Debug.LogError("GizmoCamera not found in the scene.");
             }
 
-
-            SceneView.lastActiveSceneView.in2DMode = false;
-            SceneView.lastActiveSceneView.rotation = Quaternion.Euler(0, 180, 0);
-            SceneView.lastActiveSceneView.LookAt(SceneView.lastActiveSceneView.pivot, Quaternion.Euler(0, 180, 0), 1);
+            //
+            // SceneView.lastActiveSceneView.in2DMode = false;
+            // SceneView.lastActiveSceneView.rotation = Quaternion.Euler(0, 180, 0);
+            // SceneView.lastActiveSceneView.LookAt(SceneView.lastActiveSceneView.pivot, Quaternion.Euler(0, 180, 0), 1);
         }
 
         if (_isInPlacementMode)

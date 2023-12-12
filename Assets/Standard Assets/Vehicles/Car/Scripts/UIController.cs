@@ -51,8 +51,8 @@ public class UIController : MonoBehaviour
 	bool isFinalVersion = false; 
 	bool isRealVersion = true;
 	bool isAlphaVersion = false;
-	string version = "1.2.7";
-	string finalVersion = "1.2.7";
+	string version = "2.3.0";
+	string finalVersion = "2.3.0";
 	string versionTextStr = " pre-alpha";
 	string versionResult;
 	string githubURL = "https://github.com/AvisEngine/AVIS-Engine-Python-API";
