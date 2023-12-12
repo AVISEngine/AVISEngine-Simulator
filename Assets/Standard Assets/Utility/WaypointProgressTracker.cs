@@ -104,6 +104,8 @@ namespace UnityStandardAssets.Utility
 
                 // get our current progress along the route
                 progressPoint = circuit.GetRoutePoint(progressDistance);
+                print("progressPoint" + progressPoint);
+
                 Vector3 progressDelta = progressPoint.position - transform.position;
                 if (Vector3.Dot(progressDelta, progressPoint.direction) < 0)
                 {
@@ -111,6 +113,8 @@ namespace UnityStandardAssets.Utility
                 }
 
                 lastPosition = transform.position;
+                print("last Position" + lastPosition);
+                print(lastPosition);
             }
             else
             {
@@ -120,6 +124,7 @@ namespace UnityStandardAssets.Utility
                 if (targetDelta.magnitude < pointToPointThreshold)
                 {
                     progressNum = (progressNum + 1)%circuit.Waypoints.Length;
+
                 }
 
 
@@ -128,6 +133,8 @@ namespace UnityStandardAssets.Utility
 
                 // get our current progress along the route
                 progressPoint = circuit.GetRoutePoint(progressDistance);
+                                    print("progressPoint" + progressPoint);
+
                 Vector3 progressDelta = progressPoint.position - transform.position;
                 if (Vector3.Dot(progressDelta, progressPoint.direction) < 0)
                 {

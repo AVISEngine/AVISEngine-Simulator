@@ -1,0 +1,33 @@
+﻿{
+  "VehicleMass": 1000,
+  "VehicleDrag": 0.3,
+  "VehicleAngularDrag": 0.5,
+  "FRWheelFriction": {
+    "ExtremumSlip": 0.2,
+    "ExtremumValue": 1,
+    "AsymptoteSlip": 0.5,
+    "AsymptoteValue": 0.75,
+    "Stiffness": 1.0
+  },
+  "FLWheelFriction": {
+      "ExtremumSlip": 0.2,
+    "ExtremumValue": 1,
+    "AsymptoteSlip": 0.5,
+    "AsymptoteValue": 0.75,
+    "Stiffness": 1.0
+  },
+  "RRWheelFriction": {
+      "ExtremumSlip": 0.2,
+    "ExtremumValue": 1,
+    "AsymptoteSlip": 0.5,
+    "AsymptoteValue": 0.75,
+    "Stiffness": 1.0
+  },
+  "RLWheelFriction": {
+      "ExtremumSlip": 0.2,
+    "ExtremumValue": 1,
+    "AsymptoteSlip": 0.5,
+    "AsymptoteValue": 0.75,
+    "Stiffness": 1.0
+  }
+}
