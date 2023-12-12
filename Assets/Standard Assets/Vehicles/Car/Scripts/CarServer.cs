@@ -1,12 +1,4 @@
-﻿/*
-    Car Server Class
-    ________________
-    This class is responsible for the connection between simulator and the client
-    Two methods to establish a connection:
-        1. Using ZMQ Pub-sub pattern
-        2. Using AVIS Engine Client-server pattern
- */
-
+﻿
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
@@ -22,81 +14,124 @@ using System.Threading;
 using System.Threading.Tasks;
 using ArabicSupport;
 using System.IO.Compression;
-using NetMQ;
-using NetMQ.Sockets;
-using System.Threading;
-using AsyncIO;
 
-public class CarServer : MonoBehaviour {
+
+public class CarServer : MonoBehaviour
+{
+    // Sensors and props
+    private CameraSensor cameraSens;
+    public Sensors sensorsClass;
+
+
+    // Connection information variables 
+    private string connectionIP = "127.0.0.1";
+    private int connectionPort = 25001;
+
+
+    // Car control variables from recieved from client
     public float Steering = 0;
     public float Speed = 0;
     public float command = 0;
-    string[] responseArray = {"0","0","0","0","0","0"};
     public float sensor = 0;
+
+
     public float get_speed = 0;
     public float sensor_angle = 30;
+
+
+    private float thisDistanceCenter;
+    private float thisDistanceRight;
+    private float thisDistanceLeft;
+
+
     public int current_speed;
     bool firstMovement = false;
 
+    // UI Elements
     public InputField serverField;
     public InputField portField;
     public Button startButton;
     public Text logger;
 
+
+    // Socket and Connenction classes
+    TcpListener listener;
+    IPAddress localAdd;
+    TcpClient client;
+    Thread mThread;
+    StreamWriter theWriter;
+
+
+    // Stream data variables
+    string data;
+    string[] responseArray = { "0", "0", "0", "0", "0", "0" };
+    string imageString;
     private bool running;
-    private Thread netMQThread;
+    byte[] image;
+    string sensors;
 
-    // NetMQ Publisher Socket
-    private PublisherSocket publisherSocket;
-    public string topic = "CarControl";
-    public string address = "tcp://localhost:5556";
 
+    // Classes
     public LanguageHandler languageHandler;
-    public CameraSensor cameraSens;
-    public Sensors sensorsClass;
 
-    private void Start() {
-        // Button btn1 = startButton.GetComponent<Button>();
-        // btn1.onClick.AddListener(StartServer);
 
+    // ZMQ Variables 
+    bool useZMQ = false;
+
+
+    private void Start()
+    {
         // Server Start button
         Button btn1 = startButton.GetComponent<Button>();
         btn1.onClick.AddListener(startButtonEvent);
+
 
         // Finding UI components needed to show something;
         serverField = GameObject.Find("UIPanel/Scroll View/Viewport/Content/ServerIPField").GetComponent<InputField>();
         portField = GameObject.Find("UIPanel/Scroll View/Viewport/Content/ServerPortField").GetComponent<InputField>();
         logger = GameObject.Find("UIPanel/Scroll View/Viewport/Content/Log").GetComponent<Text>();
-        
+
         // Initialize values into the UI Components
         languageHandler = GameObject.Find("LanguageHandler").GetComponent<LanguageHandler>();
         languageHandler.m_dictionary();
-        
+
         // Clearing the log messages
         logger.text = "";
 
-        if(languageHandler.lang == "fa"){
-            btn1.GetComponentInChildren<Text>().text = ArabicFixer.Fix(languageHandler.dict["StartServer"], false, false);
-            portField.GetComponentInChildren<Text>().text = ArabicFixer.Fix(languageHandler.dict["ServerPort"], false, false);
-            serverField.GetComponentInChildren<Text>().text = ArabicFixer.Fix(languageHandler.dict["ServerIP"], false, false);
-        }else{
+
+        if (languageHandler.lang == "fa")
+        {
+            btn1.GetComponentInChildren<Text>().text =
+                ArabicFixer.Fix(languageHandler.dict["StartServer"], false, false);
+            portField.GetComponentInChildren<Text>().text =
+                ArabicFixer.Fix(languageHandler.dict["ServerPort"], false, false);
+            serverField.GetComponentInChildren<Text>().text =
+                ArabicFixer.Fix(languageHandler.dict["ServerIP"], false, false);
+        }
+        else
+        {
             btn1.GetComponentInChildren<Text>().text = languageHandler.dict["StartServer"];
             portField.GetComponentInChildren<Text>().text = languageHandler.dict["ServerPort"];
             serverField.GetComponentInChildren<Text>().text = languageHandler.dict["ServerIP"];
         }
 
-      
+
+        // Finding Components need to get access
         cameraSens = GetComponent<CameraSensor>();
         sensorsClass = GameObject.Find("Car Urban Tesla/SensorBox").GetComponent<Sensors>();
 
-        // Initialize NetMQ for Unity
-        AsyncIO.ForceDotNet.Force();
-        StartServer();
+
     }
+
 
     private void Update()
     {
-      
+        if (useZMQ)
+        {
+
+        }
+        else
+        {
             float.TryParse(responseArray[0], out Speed);
             float.TryParse(responseArray[1], out Steering);
             float.TryParse(responseArray[2], out command);
@@ -104,55 +139,175 @@ public class CarServer : MonoBehaviour {
             float.TryParse(responseArray[4], out get_speed);
             float.TryParse(responseArray[5], out sensor_angle);
 
-            current_speed = Convert.ToInt32(GetComponent<Rigidbody>().velocity.magnitude*3.6);
-            if(Convert.ToInt32(current_speed) > 3 && !firstMovement){
+
+            current_speed = Convert.ToInt32(GetComponent<Rigidbody>().velocity.magnitude * 3.6);
+            if (Convert.ToInt32(current_speed) > 3 && !firstMovement)
+            {
                 firstMovement = true;
                 Debug.Log(current_speed);
                 logger.text += "Car Moved";
             }
-        
+        }
     }
 
-    private void StartServer() {
+
+    void startButtonEvent()
+    {
+
+        if (!(string.IsNullOrEmpty(serverField.text) && string.IsNullOrEmpty(portField.text)))
+        {
+            string theip = serverField.text;
+            int theport = Int32.Parse(portField.text);
+
+
+            if (theip != null && theport != null)
+            {
+                Debug.Log(theip);
+                Debug.Log(theport);
+                connectionIP = theip;
+                connectionPort = theport;
+
+
+                if (useZMQ)
+                {
+                    //ZMQ
+                    // Task task = new Task (async() => Publish());
+                    // task.Start ();
+
+                }
+                else
+                {
+                    Thread mThread = new Thread(() => GetInfo(connectionIP, connectionPort));
+                    mThread.Start();
+                }
+
+                logger.text += string.Format(languageHandler.dict["StartedServerMsg"], theip, theport.ToString());
+            }
+        }
+        else
+        {
+            if (useZMQ)
+            {
+                //ZMQ
+                // Task task = new Task (async() => Publish());
+                // task.Start();                
+            }
+            else
+            {
+                Thread mThread = new Thread(() => GetInfo(connectionIP, connectionPort));
+                mThread.Start();
+            }
+
+            logger.text += string.Format(languageHandler.dict["StartedServerMsg"], connectionIP,
+                connectionPort.ToString());
+        }
+    }
+
+    void GetInfo(string theIP, int thePort)
+    {
+        localAdd = IPAddress.Parse(theIP);
+        listener = new TcpListener(IPAddress.Any, thePort);
+        listener.Start();
+        client = listener.AcceptTcpClient();
+
+        NetworkStream nwStream = client.GetStream();
+        theWriter = new StreamWriter(nwStream);
+
+
         running = true;
-        netMQThread = new Thread(ServerLoop);
-        netMQThread.Start();
+        while (running)
+        {
+            Connection(nwStream);
+        }
+
+        listener.Stop();
+        Thread mThread = new Thread(() => GetInfo(connectionIP, connectionPort));
+        mThread.Start();
     }
 
-    private void ServerLoop() {
-        try {
-            using (publisherSocket = new PublisherSocket()) {
-                publisherSocket.Bind(address);
-                
-                while (running) {
-                    string message = $"{Speed};{Steering};{command};{sensor};{get_speed};{sensor_angle}";
-                    publisherSocket.SendMoreFrame(topic).SendFrame(message);
-                    Thread.Sleep(100);
+
+    void Connection(NetworkStream nwStream)
+    {
+        if (client == null)
+        {
+            return;
+        }
+
+        try
+        {
+            client.SendBufferSize = 131072;
+            client.ReceiveBufferSize = 65536;
+            byte[] buffer = new byte[65536];
+
+            int bytesRead = nwStream.Read(buffer, 0, 65536);
+            string dataReceived = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+
+
+            if (dataReceived != "")
+            {
+                if (dataReceived == "stop")
+                {
+                    running = false;
+                }
+                else
+                {
+                    responseArray = ParseResponse(dataReceived);
+
+                    float.TryParse(responseArray[2], out command);
+                    float.TryParse(responseArray[3], out sensor);
+                    float.TryParse(responseArray[4], out get_speed);
+                    float.TryParse(responseArray[5], out sensor_angle);
+
+
+                    if (command == 1)
+                    {
+                        theWriter.Write("<image>" + cameraSens.cameraImageString + "</image><EOF>\n");
+                        theWriter.Flush();
+                    }
+
+                    if (sensor == 1)
+                    {
+                        thisDistanceCenter = sensorsClass.distanceCenter;
+                        thisDistanceRight = sensorsClass.distanceRight;
+                        thisDistanceLeft = sensorsClass.distanceLeft;
+
+                        theWriter.Write("<sensor>" + "L:" + ((int)(thisDistanceLeft * 100f)).ToString() + ",M:" +
+                                        ((int)(thisDistanceCenter * 100f)).ToString() + ",R:" +
+                                        ((int)(thisDistanceRight * 100f)).ToString() + "</sensor>\n" + "\n");
+                        theWriter.Flush();
+                    }
+
+                    if (get_speed == 1)
+                    {
+                        theWriter.Write("<speed>" + current_speed.ToString() + "</speed><EOF>\n");
+                        theWriter.Flush();
+                    }
+
+                    sensorsClass.frontSensorAngle = sensor_angle;
                 }
             }
-        } finally {
-            NetMQConfig.Cleanup(); // Important to prevent Unity freeze after one use
         }
-    }
-
-    void OnDestroy() {
-        running = false;
-        netMQThread.Join();
-        NetMQConfig.Cleanup();
-    }
-
-    void startButtonEvent() {
-        if (running) {
-            // If server is already running, perhaps we want to provide a way to stop it
-            // StopServer();
-        } else {
-            // Server is not running, so start it
-            StartServer();
+        catch (SocketException socketException)
+        {
+            print("SocketException ->" + socketException.ToString());
         }
     }
 
 
-    
+    void OnApplicationQuit()
+    {
+        print("Done");
+    }
+
+
+    void OnDestroy()
+    {
+        listener.Stop();
+        client.GetStream().Close();
+        client.Close();
+        print("Destroy");
+    }
+
     public static byte[] Compress(byte[] raw)
     {
         using (MemoryStream memory = new MemoryStream())
@@ -161,40 +316,46 @@ public class CarServer : MonoBehaviour {
             {
                 gzip.Write(raw, 0, raw.Length);
             }
+
             return memory.ToArray();
         }
     }
+
 
     public static string[] ParseResponse(string response)
     {
         // Regex : /[a-zA-Z]+:\d+/sg
         // Template : Object1:Value1,Object2:Value2,...
-        if(response != ""){
+        if (response != "")
+        {
             string[] arr = Regex.Matches(response, @"-?[0-9]\d*(.\d+)?")
                 .OfType<Match>()
                 .Select(m => m.Groups[0].Value)
                 .ToArray();
             return arr;
-        }else{
-            string[] arr = {"0","0","0","0","0","0"};
+        }
+        else
+        {
+            string[] arr = { "0", "0", "0", "0", "0", "0" };
             return arr;
         }
-        
+
     }
-    public static void CopyTo(Stream src, Stream dest) {
+
+    public static void CopyTo(Stream src, Stream dest)
+    {
         byte[] bytes = new byte[4096];
+
 
         int cnt;
 
-        while ((cnt = src.Read(bytes, 0, bytes.Length)) != 0) {
+
+        while ((cnt = src.Read(bytes, 0, bytes.Length)) != 0)
+        {
             dest.Write(bytes, 0, cnt);
         }
     }
-    void OnApplicationQuit() {
-        running = false;
-        if (netMQThread != null && netMQThread.IsAlive) {
-            netMQThread.Join();
-        }
-        Debug.Log("Application ending after " + Time.time + " seconds");
-    }
+
+
+
 }

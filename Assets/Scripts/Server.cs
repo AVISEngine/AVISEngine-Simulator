@@ -6,22 +6,53 @@ using System.Text;
 public class Server : MonoBehaviour
 {
     private PublisherSocket publisher;
-    public Camera captureCamera;  
-        private Texture2D texture2D;
+    public Camera captureCamera;
+    private Texture2D texture2D;
 
     private Rect rect;
+    void OnEnable()
+    {
+        // ForceDotNet.Force();
+        // NetMQConfig.AutoNotify = false;
+        publisher = new PublisherSocket();
+        publisher.Bind("tcp://*:12345");
+        
+      
+    }
+
+    void OnDisable()
+    {
+        isRunning = false;
+        publisher.Close();
+        publisher.Dispose();
+        NetMQConfig.Cleanup();
+    }
+    
+    void LateUpdate()
+    {
+        if (isRunning)
+        {
+            // Start publishing messages
+            PublishScanData();
+            PublishSteeringData();
+            PublishVelocityData();
+            PublishFrontImage();
+            PublishSegmentData();
+            PublishDepthData();
+            
+        }
+    }
+    
     void Start()
     {
-        publisher = new PublisherSocket();
-        publisher.Bind("tcp://*:12345"); // Replace with the appropriate IP and port
+        rect = new Rect(0, 0, captureCamera.pixelWidth, captureCamera.pixelHeight);
+        texture2D = new Texture2D(captureCamera.pixelWidth, captureCamera.pixelHeight, TextureFormat.RGB24, false);
+        if (captureCamera.targetTexture == null)
+        {
+            captureCamera.targetTexture = new RenderTexture(captureCamera.pixelWidth, captureCamera.pixelHeight, 24);
+        }
 
-        // Start publishing messages
-        PublishScanData();
-        PublishSteeringData();
-        PublishVelocityData();
-        PublishFrontImage();
-        PublishSegmentData();
-        PublishDepthData();
+       
     }
 
     void PublishMessage(string topic, string message)
@@ -35,7 +66,6 @@ public class Server : MonoBehaviour
         string scanData = "example scan data";
         PublishMessage("/car/scan", scanData);
     }
-    
     
 
     void PublishSteeringData()
@@ -59,9 +89,8 @@ public class Server : MonoBehaviour
         // byte[] frontImageData = GetFrontImageData();
         // publisher.SendMoreFrame("/car/image_front").SendFrame(frontImageData);
         // Capture the frame
+        // Capture the frame
         captureCamera.Render();
-        rect = new Rect(0, 0, captureCamera.pixelWidth, captureCamera.pixelHeight);
-        texture2D = new Texture2D(captureCamera.pixelWidth, captureCamera.pixelHeight, TextureFormat.RGB24, false);
 
         RenderTexture.active = captureCamera.targetTexture;
         texture2D.ReadPixels(rect, 0, 0);
