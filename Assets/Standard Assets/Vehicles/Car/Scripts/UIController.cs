@@ -175,7 +175,7 @@ public class UIController : MonoBehaviour
 			btn3.GetComponentInChildren<Text>().text = ArabicFixer.Fix(languageHandler.dict["UrbanTrack1"], false, false);
 			btn4.GetComponentInChildren<Text>().text = ArabicFixer.Fix(languageHandler.dict["UrbanTrack2"], false, false);
 			headerText.GetComponentInChildren<Text>().text = ArabicFixer.Fix(languageHandler.dict["ChooseTrack"], false, false);
-			calibButton.GetComponentInChildren<Text>().text = ArabicFixer.Fix(languageHandler.dict["CameraCalibration"], false, false);
+			// calibButton.GetComponentInChildren<Text>().text = ArabicFixer.Fix(languageHandler.dict["CameraCalibration"], false, false);
 			terms.GetComponentInChildren<Text>().text = ArabicFixer.Fix(languageHandler.dict["terms"], false, false);
 			aboutSimBtn.GetComponentInChildren<Text>().text = ArabicFixer.Fix(languageHandler.dict["aboutThis"], false, false);
 			exitButton.GetComponentInChildren<Text>().text = ArabicFixer.Fix(languageHandler.dict["Exit"], false, false);
@@ -188,7 +188,7 @@ public class UIController : MonoBehaviour
 			terms.GetComponentInChildren<Text>().text = languageHandler.dict["terms"];
 			aboutSimBtn.GetComponentInChildren<Text>().text = languageHandler.dict["aboutThis"];
 			headerText.GetComponentInChildren<Text>().text = languageHandler.dict["ChooseTrack"];
-			calibButton.GetComponentInChildren<Text>().text = languageHandler.dict["CameraCalibration"];
+			// calibButton.GetComponentInChildren<Text>().text = languageHandler.dict["CameraCalibration"];
 			exitButton.GetComponentInChildren<Text>().text = languageHandler.dict["Exit"];
 			aboutHeaderText.GetComponentInChildren<Text>().text = languageHandler.dict["About"];
 		}
