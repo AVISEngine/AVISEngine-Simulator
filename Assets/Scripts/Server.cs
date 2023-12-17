@@ -9,11 +9,17 @@ public class Server : MonoBehaviour
 {
     private PublisherSocket publisher;
     public Camera captureCamera;
+    public Camera leftCamera;
+    public Camera rightCamera;
+    
     private Texture2D texture2D;
     private bool isRunning = true;
     public int width = 512;
     public int height = 512;
     
+    public bool publishRightCamera = true;
+    public bool publishLeftCamera = true;
+    public bool publishFrontCamera = true;
 
     private Rect rect;
 
@@ -46,7 +52,10 @@ public class Server : MonoBehaviour
     void StartCoroutines()
     {
         StartCoroutine(PublishFrontImage());
-        StartCoroutine(PublishSegmentData());
+        // StartCoroutine(PublishSegmentData());
+        StartCoroutine(PublishRightImage());
+        StartCoroutine(PublishLeftImage());
+
     }
 
     private void PublishMessage(string topic, byte[] message)
@@ -91,7 +100,7 @@ public class Server : MonoBehaviour
 
     IEnumerator PublishFrontImage()
     {
-        while (isRunning)
+        while (isRunning && publishFrontCamera)
         {
             yield return new WaitForEndOfFrame();
 
@@ -112,6 +121,51 @@ public class Server : MonoBehaviour
         }
     }
 
+    IEnumerator PublishRightImage()
+    {
+        while (isRunning && publishRightCamera)
+        {
+            yield return new WaitForEndOfFrame();
+
+            rightCamera.Render();
+
+            RenderTexture.active = rightCamera.targetTexture;
+            texture2D.ReadPixels(rect, 0, 0);
+            texture2D.Apply();
+            RenderTexture.active = null;
+
+            byte[] frameBytes = texture2D.EncodeToJPG(50);
+
+            // Send the topic frame
+            publisher.SendMoreFrame("/car/image_right").SendFrame(frameBytes);
+
+            // Wait some time before capturing the next frame
+            yield return new WaitForSeconds(0.016f); // Approx 30 FPS
+        }
+    }
+    IEnumerator PublishLeftImage()
+    {
+        while (isRunning && publishLeftCamera)
+        {
+            yield return new WaitForEndOfFrame();
+
+            leftCamera.Render();
+
+            RenderTexture.active = leftCamera.targetTexture;
+            texture2D.ReadPixels(rect, 0, 0);
+            texture2D.Apply();
+            RenderTexture.active = null;
+
+            byte[] frameBytes = texture2D.EncodeToJPG(50);
+
+            // Send the topic frame
+            publisher.SendMoreFrame("/car/image_left").SendFrame(frameBytes);
+
+            // Wait some time before capturing the next frame
+            yield return new WaitForSeconds(0.016f); // Approx 30 FPS
+        }
+    }
+    
     void OnDestroy()
     {
         if (publisher != null)

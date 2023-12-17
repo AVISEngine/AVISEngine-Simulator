@@ -41,6 +41,8 @@ class Car:
         self.frame_count = 0
         self.start_time = time.perf_counter()
         self._camera_front_image = []
+        self._camera_left_image = []
+        self._camera_right_image = []
 
     def connect(self, ip="127.0.0.1", port="12345"):
         """Connects the socket to the specified IP and port."""
@@ -73,6 +75,32 @@ class Car:
                     print("FPS: ", fps)
                     self.frame_count = 0
                     self.start_time = time.perf_counter()
+                    
+            if topic == b"/car/image_left":
+                self.frame_count += 1
+                image_array = np.frombuffer(data, dtype=np.uint8)
+                image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+                self._camera_left_image = image
+                cv2.imshow("Left Image", image)
+
+                # Calculate FPS
+                end_time = time.perf_counter()
+                time_diff = end_time - self.start_time
+                if time_diff >= 1.0:  # Every second, update the FPS value
+                    fps = self.frame_count / time_diff
+                    print("FPS: ", fps)
+                    self.frame_count = 0
+                    self.start_time = time.perf_counter()
+                    
+            if topic == b"/car/image_right":
+                image_array = np.frombuffer(data, dtype=np.uint8)
+                image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+                self._camera_right_image = image
+                cv2.imshow("Right Image", image)
+
+            
+            
+            
 
             # Add more processing if required for other topics
                 
@@ -88,7 +116,7 @@ class Car:
         self.socket.close()
         self.context.term()
 
-topics = [b"/car/scan", b"/car/steering", b"/car/vel", b"/car/image_front", b"/car/depth"]
+topics = [b"/car/scan", b"/car/steering", b"/car/vel", b"/car/image_front", b"/car/image_left", b"/car/image_right", b"/car/depth"]
 subscriber = Car(topics)
 subscriber.connect()
 subscriber.subscribe_to_topics()
