@@ -109,6 +109,10 @@ class Car:
                 
     def get_front_image(self):
         return self._camera_front_image
+    def get_left_image(self):
+        return self._camera_left_image
+    def get_right_image(self):
+        return self._camera_right_image
         
     def cleanup(self):
         """Closes the socket and terminates the context."""
