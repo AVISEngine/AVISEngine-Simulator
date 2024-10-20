@@ -41,9 +41,9 @@ public class kartLap : MonoBehaviour
         checkpointIndex = 0;
         trueCheckpoint = 0;
         scoresText = GameObject.Find("UIPanel/Scroll View/Viewport/Content/Scores").GetComponentInChildren<Text>();
-        // scoresText.text = "Checkpoints and Laps: \n => Laps :" + lapNumber.ToString() + "\n => Checkpoints : " + checkpointIndex.ToString() + "/" + totalCheckpoints.ToString();
+        scoresText.text = "Checkpoints and Laps: \n => Laps :" + lapNumber.ToString() + "\n => Checkpoints : " + checkpointIndex.ToString() + "/" + totalCheckpoints.ToString();
         
-        scoresText.text = string.Format(languageHandler.dict["LapsAndCheckpoints"],lapNumber.ToString(),checkpointIndex.ToString(),totalCheckpoints.ToString());
+        //scoresText.text = string.Format(languageHandler.dict["LapsAndCheckpoints"],lapNumber.ToString(),checkpointIndex.ToString(),totalCheckpoints.ToString());
     }
 
     private void UpdateTeamName(string newTeamName)

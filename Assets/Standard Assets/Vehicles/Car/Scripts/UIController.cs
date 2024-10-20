@@ -45,10 +45,10 @@ public class UIController : MonoBehaviour
 	// string versionTextStr = "FIRA Autonomous Cars : Tele-Operation Simulator Ver ";
 	//Last change : Jan 25 -> Robocup edition, Feb 7 -> Camera Calibration + Traffic System
 	bool isFinalVersion = true; 
-	bool isRealVersion = true;
+	bool isRealVersion = false;
 	string version = "2.2.1";
 	string finalVersion = "2.2.1";
-	string versionTextStr = "";
+	string versionTextStr = "Final";
 	string versionResult;
 	string githubURL = "https://github.com/AvisEngine/AVIS-Engine-Python-API";
 	string termsURL = "http://avisengine.com/225286-2/";
@@ -240,7 +240,7 @@ public class UIController : MonoBehaviour
 	void Race2Event()
 	{	
 		if(isFinalVersion){
-			SceneManager.LoadScene("Race3");
+			SceneManager.LoadScene("Race1Fix");
 		}else{
 			SceneManager.LoadScene("Race2");
 		}

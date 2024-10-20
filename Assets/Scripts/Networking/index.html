@@ -44,6 +44,8 @@
             margin-top: 10px;
         }
     </style>
+    <!-- Add Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body class="py-4">
@@ -66,7 +68,7 @@
                         <h2 class="card-title h5 mb-0">Sensor Data</h2>
                     </div>
                     <div class="card-body">
-                        <p id="sensorData" class="card-text">Waiting for data...</p>
+                        <canvas id="sensorChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -80,7 +82,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="card h-100">
                     <div class="card-header">
                         <h2 class="card-title h5 mb-0">Camera Feeds</h2>
@@ -90,7 +92,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="card">
                     <div class="card-header">
                         <h2 class="card-title h5 mb-0">Scene Camera</h2>
@@ -210,13 +212,90 @@
             }
         }
 
+        let sensorChart;
+        const MAX_SENSOR_VALUE = 2000; // Set this to your maximum expected sensor value
+
         function updateSensors(data) {
             const sensors = data.match(/<sensor>(.*?)<\/sensor>/);
             if (sensors) {
-                document.getElementById('sensorData').textContent = `Sensor data: ${sensors[1]}`;
+                const sensorData = sensors[1].split(',');
+                const sensorValues = sensorData.map(sensor => {
+                    const [, value] = sensor.split(':');
+                    return Number(value);
+                });
+                updateSensorChart(sensorValues);
             } else {
                 document.getElementById('sensorData').textContent = 'Sensor data not available';
             }
+        }
+
+        function updateSensorChart(sensorValues) {
+            if (!sensorChart) {
+                const ctx = document.getElementById('sensorChart').getContext('2d');
+                sensorChart = new Chart(ctx, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [{
+                            label: 'Left Sensor',
+                            data: [{ x: 0, y: 0 }],
+                            backgroundColor: 'rgba(255, 99, 132, 1)',
+                        }, {
+                            label: 'Middle Sensor',
+                            data: [{ x: 0, y: 0 }],
+                            backgroundColor: 'rgba(54, 162, 235, 1)',
+                        }, {
+                            label: 'Right Sensor',
+                            data: [{ x: 0, y: 0 }],
+                            backgroundColor: 'rgba(255, 206, 86, 1)',
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        // scales: {
+                        //     x: {
+                        //         type: 'radialLinear',
+                        //         beginAtZero: false,
+                        //         max: MAX_SENSOR_VALUE,
+                        //         min: 0,
+                        //         ticks: {
+                        //             stepSize: 500
+                        //         },
+                        //         pointLabels: {
+                        //             display: true,
+                        //             centerPointLabels: true,
+                        //             font: {
+                        //                 size: 12
+                        //             }
+                        //         }
+                        //     }
+                        // },
+                        y: {
+                            min: 0,
+                            max: MAX_SENSOR_VALUE,
+                        },
+                        x: {
+                            min: -1500,
+                            max: 1500,
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: true,
+                                text: 'Sensor Readings'
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Update the chart data
+            sensorChart.data.datasets[0].data = [{ x: sensorValues[2] * Math.cos(Math.PI / 6), y: sensorValues[2] * Math.sin(Math.PI / 6) }];
+            sensorChart.data.datasets[1].data = [{ x: sensorValues[1] * Math.cos(Math.PI / 2), y: sensorValues[1] * Math.sin(Math.PI / 2) }];
+            sensorChart.data.datasets[2].data = [{ x: sensorValues[0] * Math.cos(5 * Math.PI / 6), y: sensorValues[0] * Math.sin(5 * Math.PI / 6) }];
+
+            sensorChart.update();
         }
 
         function updateGPS(data) {

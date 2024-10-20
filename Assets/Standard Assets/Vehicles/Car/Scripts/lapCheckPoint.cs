@@ -15,7 +15,9 @@ public class lapCheckPoint : MonoBehaviour
         GameObject gameObject = new GameObject("LanguageHandler");
         languageHandler = gameObject.AddComponent<LanguageHandler>();
         languageHandler.m_dictionary();
+        kartLap car = GameObject.Find("Car Urban Tesla").GetComponent<kartLap>();
 
+        car.scoresText.text = string.Format(languageHandler.dict["LapsAndCheckpoints"], car.lapNumber.ToString(), car.checkpointIndex.ToString(), car.totalCheckpoints.ToString());
         InitializeDatabase();
     }
 
@@ -51,13 +53,12 @@ public class lapCheckPoint : MonoBehaviour
 
             if (checkpointPassed)
             {
-
                 // Save checkpoint data
                 SaveCheckpointData(car);
+                
+                // Update the UI
+                UpdateScoresText(car);
             }
-
-            // Update the UI
-            car.scoresText.text = string.Format(languageHandler.dict["LapsAndCheckpoints"], car.lapNumber.ToString(), car.checkpointIndex.ToString(), car.totalCheckpoints.ToString());
 
             // Debug logging
             Debug.Log($"Checkpoint {Index} triggered. Car checkpoint: {car.checkpointIndex}, True checkpoint: {car.trueCheckpoint}");
@@ -80,6 +81,18 @@ public class lapCheckPoint : MonoBehaviour
         };
         Debug.Log("Saving checkpoint data: " + teamScore.ToString());   
         _connection.Insert(teamScore);
+    }
+
+    private void UpdateScoresText(kartLap car)
+    {
+        if (car.scoresText != null)
+        {
+            car.scoresText.text = string.Format(languageHandler.dict["LapsAndCheckpoints"], car.lapNumber.ToString(), car.checkpointIndex.ToString(), car.totalCheckpoints.ToString());
+        }
+        else
+        {
+            Debug.LogWarning("scoresText is null on the kartLap component.");
+        }
     }
 
     void OnDestroy()
