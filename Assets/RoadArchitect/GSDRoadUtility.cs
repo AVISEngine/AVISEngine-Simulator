@@ -353,8 +353,8 @@ namespace GSD.Roads{
 				if(bContains && !TempTerrainDict.ContainsKey(tTerrain)){
 					TTD = new TempTerrainData();
 					TTD.HM = tTerrain.terrainData.heightmapResolution;			
-					TTD.HMHeight = tTerrain.terrainData.heightmapHeight;
-					TTD.heights = tTerrain.terrainData.GetHeights(0,0,tTerrain.terrainData.heightmapWidth,tTerrain.terrainData.heightmapHeight);
+					TTD.HMHeight = tTerrain.terrainData.heightmapResolution;
+					TTD.heights = tTerrain.terrainData.GetHeights(0,0,tTerrain.terrainData.heightmapResolution,tTerrain.terrainData.heightmapResolution);
 					TTD.HMRatio = TTD.HM / tTerrain.terrainData.size.x;
 					TTD.MetersPerHM = tTerrain.terrainData.size.x / tTerrain.terrainData.heightmapResolution;
 					float DetailRatio = tTerrain.terrainData.detailResolution / tTerrain.terrainData.size.x;
@@ -374,7 +374,7 @@ namespace GSD.Roads{
 						TTD.TerrainMaxIndex = tTerrain.terrainData.heightmapResolution;
 						TTD.TerrainSize = tTerrain.terrainData.size;
 						TTD.TerrainPos = tTerrain.transform.position;
-						TTD.tHeights = new bool[tTerrain.terrainData.heightmapWidth,tTerrain.terrainData.heightmapHeight];
+						TTD.tHeights = new bool[tTerrain.terrainData.heightmapResolution,tTerrain.terrainData.heightmapResolution];
 						TID = tTerrain.transform.gameObject.GetComponent<GSDTerrain>();
 						if(TID != null){
 							TTD.GSDID = TID.GSDID;
@@ -643,7 +643,7 @@ namespace GSD.Roads{
 					
 				//Heights:
 				if(TH.x1 != null){
-					heights = tTerrain.terrainData.GetHeights(0,0,tTerrain.terrainData.heightmapWidth,tTerrain.terrainData.heightmapHeight);
+					heights = tTerrain.terrainData.GetHeights(0,0,tTerrain.terrainData.heightmapResolution,tTerrain.terrainData.heightmapResolution);
 					ArrayCount = TH.cI;
 					for(int i=0;i<ArrayCount;i++){
 						heights[TH.x1[i],TH.y1[i]] = TH.h[i];
@@ -3877,8 +3877,8 @@ namespace GSD.Roads{
 				tInfo = new GSD.Threaded.GSDRoadCreationT.RoadTerrainInfo();
 				tInfo.GSDID = tTerrain.transform.gameObject.GetComponent<GSDTerrain>().GSDID;
 				tInfo.tBounds = new Rect(tTerrain.transform.position.x,tTerrain.transform.position.z,tTerrain.terrainData.size.x,tTerrain.terrainData.size.z);
-				tInfo.hmWidth = tTerrain.terrainData.heightmapWidth;
-				tInfo.hmHeight = tTerrain.terrainData.heightmapHeight;
+				tInfo.hmWidth = tTerrain.terrainData.heightmapResolution;
+				tInfo.hmHeight = tTerrain.terrainData.heightmapResolution;
 				tInfo.tPos = tTerrain.transform.position;
 				tInfo.tSize = tTerrain.terrainData.size;
 				tInfo.heights = tTerrain.terrainData.GetHeights(0,0,tInfo.hmWidth,tInfo.hmHeight);

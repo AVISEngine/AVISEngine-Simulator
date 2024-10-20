@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Data Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+        }
+
+        .card {
+            background-color: #2a2a2a;
+            border: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #ffffff;
+        }
+
+        .card-header {
+            background-color: #343a40;
+            border-bottom: 2px solid rgb(255, 224, 224);
+        }
+
+        #cameraImage,
+        #sceneCameraImage {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body class="py-4">
+    <div class="container">
+        <h1 class="text-center mb-4">AVIS Engine Dashboard</h1>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="card-title h5 mb-0">Speed</h2>
+                    </div>
+                    <div class="card-body">
+                        <p id="speedData" class="card-text">Waiting for data...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="card-title h5 mb-0">Sensor Data</h2>
+                    </div>
+                    <div class="card-body">
+                        <p id="sensorData" class="card-text">Waiting for data...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="card-title h5 mb-0">GPS Data</h2>
+                    </div>
+                    <div class="card-body">
+                        <p id="gpsData" class="card-text">Waiting for data...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="card-title h5 mb-0">Camera Feeds</h2>
+                    </div>
+                    <div class="card-body">
+                        <img id="cameraImage" src="" alt="Car camera feed not available" class="img-fluid">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title h5 mb-0">Scene Camera</h2>
+                    </div>
+                    <div class="card-body">
+                        <img id="sceneCameraImage" src="" alt="Scene camera feed not available" class="img-fluid">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add new card for Lap and Checkpoint Data -->
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="card-title h5 mb-0">Lap and Checkpoint</h2>
+                    </div>
+                    <div class="card-body">
+                        <p id="lapData" class="card-text">Waiting for data...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Race Information Card -->
+            <div class="col-md-4" id="raceInfoCard">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="card-title h5 mb-0">Race Information</h2>
+                    </div>
+                    <div class="card-body">
+                        <p id="raceStatus" class="card-text">Waiting for race to start...</p>
+                        <p id="teamData" class="card-text"></p>
+                        <p id="stageData" class="card-text"></p>
+                        <p id="lapData" class="card-text"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New Checkpoint Times Table -->
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title h5 mb-0">Checkpoint Times</h2>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-dark table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Team</th>
+                                    <th>Stage</th>
+                                    <th>Lap</th>
+                                    <th>Checkpoint</th>
+                                    <th>Time</th>
+                                    <th>Total Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="checkpointTimesBody">
+                                <!-- Checkpoint data will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS (optional) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const ws = new WebSocket('ws://localhost:4567/pubsub');
+
+        ws.onopen = () => {
+            console.log('Connected to WebSocket server');
+            ws.send('subscribe:/car/speed');
+            ws.send('subscribe:/car/sensors');
+            ws.send('subscribe:/car/gps');
+            ws.send('subscribe:/car/camera');
+            ws.send('subscribe:/car/sceneCamera');
+            ws.send('subscribe:/car/lapData');
+            ws.send('subscribe:/car/checkpointData');
+        };
+
+        ws.onmessage = (event) => {
+            console.log("Received message:", event.data);
+            const [topic, data] = event.data.split(':');
+            switch (topic) {
+                case '/car/speed':
+                    updateSpeed(data);
+                    break;
+                case '/car/sensors':
+                    updateSensors(event.data);
+                    break;
+                case '/car/gps':
+                    updateGPS(event.data);
+                    break;
+                case '/car/camera':
+                    updateCamera(data);
+                    break;
+                case '/car/sceneCamera':
+                    updateSceneCamera(data);
+                    break;
+                case '/car/lapData':
+                    updateLapData(event.data);
+                    break;
+                case '/car/checkpointData':
+                    updateCheckpointTimes(event.data);
+                    break;
+            }
+        };
+
+        function updateSpeed(data) {
+            const speed = data.match(/<speed>(.*?)<\/speed>/);
+            if (speed) {
+                document.getElementById('speedData').textContent = `Current speed: ${speed[1]} km/h`;
+            } else {
+                document.getElementById('speedData').textContent = 'Speed data not available';
+            }
+        }
+
+        function updateSensors(data) {
+            const sensors = data.match(/<sensor>(.*?)<\/sensor>/);
+            if (sensors) {
+                document.getElementById('sensorData').textContent = `Sensor data: ${sensors[1]}`;
+            } else {
+                document.getElementById('sensorData').textContent = 'Sensor data not available';
+            }
+        }
+
+        function updateGPS(data) {
+            const gps = data.match(/<gps>(.*?)<\/gps>/);
+            if (gps) {
+                document.getElementById('gpsData').textContent = `GPS: ${gps[1]}`;
+            } else {
+                document.getElementById('gpsData').textContent = 'GPS data not available';
+            }
+        }
+
+        function updateCamera(data) {
+            const imageData = data.match(/<image>(.*?)<\/image>/);
+            if (imageData) {
+                document.getElementById('cameraImage').src = `data:image/jpeg;base64,${imageData[1]}`;
+            } else {
+                document.getElementById('cameraImage').src = '';
+                document.getElementById('cameraImage').alt = 'Camera feed not available';
+            }
+        }
+        function updateSceneCamera(data) {
+            const imageData = data.match(/<sceneImage>(.*?)<\/sceneImage>/);
+            if (imageData) {
+                document.getElementById('sceneCameraImage').src = `data:image/png;base64,${imageData[1]}`;
+            } else {
+                document.getElementById('sceneCameraImage').src = '';
+                document.getElementById('sceneCameraImage').alt = 'Scene camera feed not available';
+            }
+        }
+        function updateLapData(data) {
+            console.log("Received lap data:", data);
+            const lapDataStart = data.indexOf('<lapData>');
+            const lapDataEnd = data.indexOf('</lapData>');
+            if (lapDataStart !== -1 && lapDataEnd !== -1) {
+                const lapInfo = data.substring(lapDataStart + 9, lapDataEnd);
+                const [status, team, stage, laps, checkpoints] = lapInfo.split(',');
+                if (status && team && stage && laps && checkpoints) {
+                    const raceStatus = status.split(':')[1];
+                    const teamValue = team.split(':')[1];
+                    const stageValue = stage.split(':')[1];
+                    const lapsValue = laps.split(':')[1];
+                    const checkpointsValue = checkpoints.split(':')[1];
+
+                    document.getElementById('raceStatus').textContent = raceStatus === 'started' ? 'Race in progress' : 'Waiting for race to start';
+                    document.getElementById('teamData').textContent = `Team: ${teamValue}`;
+                    document.getElementById('stageData').textContent = `Stage: ${stageValue}`;
+                    document.getElementById('lapData').textContent = `Laps: ${lapsValue}, Checkpoints: ${checkpointsValue}`;
+                } else {
+                    document.getElementById('lapData').textContent = 'Invalid lap data format';
+                }
+            } else {
+                document.getElementById('lapData').textContent = 'Lap data not available';
+            }
+        }
+        function updateCheckpointTimes(rawData) {
+            // Remove the topic prefix and extract the JSON data
+            const jsonString = rawData.replace('/car/checkpointData:', '');
+
+            let checkpointData;
+            try {
+                checkpointData = JSON.parse(jsonString);
+            } catch (error) {
+                console.error("Error parsing checkpoint data:", error);
+                console.log("Raw data:", rawData);
+                return;
+            }
+
+            const tableBody = document.getElementById('checkpointTimesBody');
+            tableBody.innerHTML = ''; // Clear existing rows
+
+            let totalTime = 0;
+            let lastTeam = '';
+            let lastStage = '';
+            let lastLap = -1;
+
+            checkpointData.forEach(checkpoint => {
+                if (checkpoint.teamName !== lastTeam || checkpoint.stageName !== lastStage || checkpoint.lap !== lastLap) {
+                    if (lastLap !== -1) {
+                        // Add a total time row for the previous lap
+                        tableBody.innerHTML += `
+                    <tr class="table-secondary">
+                        <td>${lastTeam}</td>
+                        <td>${lastStage}</td>
+                        <td>${lastLap + 1}</td>
+                        <td colspan="2">Total Lap Time</td>
+                        <td>${totalTime.toFixed(2)}s</td>
+                    </tr>
+                `;
+                    }
+                    totalTime = 0;
+                    lastTeam = checkpoint.teamName;
+                    lastStage = checkpoint.stageName;
+                    lastLap = checkpoint.lap;
+                }
+                totalTime += checkpoint.time;
+                const row = `
+            <tr>
+                <td>${checkpoint.teamName}</td>
+                <td>${checkpoint.stageName}</td>
+                <td>${checkpoint.lap + 1}</td>
+                <td>${checkpoint.checkpoint}</td>
+                <td>${checkpoint.time.toFixed(2)}s</td>
+                <td>${totalTime.toFixed(2)}s</td>
+            </tr>
+        `;
+                tableBody.innerHTML += row;
+            });
+
+            // Add total time row for the last lap
+            if (lastLap !== -1) {
+                tableBody.innerHTML += `
+            <tr class="table-secondary">
+                <td>${lastTeam}</td>
+                <td>${lastStage}</td>
+                <td>${lastLap + 1}</td>
+                <td colspan="2">Total Lap Time</td>
+                <td>${totalTime.toFixed(2)}s</td>
+            </tr>
+        `;
+            }
+        }
+        ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+
+        ws.onclose = () => {
+            console.log('Disconnected from WebSocket server');
+        };
+    </script>
+</body>
+
+</html>

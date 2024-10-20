@@ -16,7 +16,6 @@ namespace UnityStandardAssets.Vehicles.Car
     public class CarUserControl : MonoBehaviour
     {
         public bool isAtStartup = true;
-        NetworkClient myClient;
         public bool isEditorMode = false;
         private CarController m_Car;
         private CarServer m_server;

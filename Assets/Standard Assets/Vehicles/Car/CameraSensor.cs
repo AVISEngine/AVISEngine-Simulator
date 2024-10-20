@@ -56,15 +56,22 @@ public class CameraSensor : MonoBehaviour
 		if (!File.Exists(path))
         {
 			StreamWriter sw = File.CreateText(path);
-		}else{
+		}		else{
 			string jsonString;
 			jsonString = File.ReadAllText(path);
 			JSONNode data = JSON.Parse(jsonString); 
 			
-			foreach(JSONNode con in data["Config"])
+			if (data["Config"] != null) // Check if "Config" exists
 			{
-				Debug.Log(con["CameraWidth"]);
-				Debug.Log(con["CameraHeight"]);
+				foreach(JSONNode con in data["Config"])
+				{
+					Debug.Log(con["CameraWidth"]);
+					Debug.Log(con["CameraHeight"]);
+				}
+			}
+			else
+			{
+				Debug.LogWarning("Config data not found in JSON.");
 			}
 		}
 
